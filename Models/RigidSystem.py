@@ -70,6 +70,10 @@ Marker3         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[0,
 Marker4         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[-0.09, 1.4261, 0]))            #Lift Boom
 Marker5         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[0.17, 0.386113249, 0]))        # Cylinder 1 position
        
+#Fixed joint btw Ground and Pillar
+mbs.AddObject(GenericJoint(markerNumbers=[Marker1, Marker3],constrainedAxes=[1, 1, 1,1,1,1],
+                                visualization=VObjectJointGeneric(axesRadius=0.2*W1,axesLength=1.4*W1)))
+
 
 def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plotting):
     
@@ -182,15 +186,11 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
         
         Marker18        = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b5, localPosition=[0, 0, 0]))                        #With LIft Boom 
         Marker19        = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b5, localPosition=[-0.475, 0, 0]))                   #With LIft Boom,-0.475 
-        
+ 
         #%%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                                                 # JOINT DEFINITION# 
         #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++    
-        
-        #Fixed joint btw Ground and Pillar
-        mbs.AddObject(GenericJoint(markerNumbers=[Marker1, Marker3],constrainedAxes=[1, 1, 1,1,1,1],
-                                visualization=VObjectJointGeneric(axesRadius=0.2*W1,axesLength=1.4*W1)))
-        
+           
         #Revolute joint between Pillar and Lift boom
         mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
                                 visualization=VObjectJointGeneric(axesRadius=0.18*W2,axesLength=1.1*W2)))
@@ -209,8 +209,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
         
         # Revolute joint between Bracket 2 and TiltBoom
         mbs.AddObject(GenericJoint(markerNumbers=[Marker19, Marker14],constrainedAxes=[1,1,0,0,0,0],
-                             visualization=VObjectJointGeneric(axesRadius=0.23*W5,axesLength=1.0*W5)))
-        
+                             visualization=VObjectJointGeneric(axesRadius=0.23*W5,axesLength=1.0*W5)))        
         
         # Add sensors
         Angle1          = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
@@ -366,6 +365,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
                                         fileName='ExData/Angle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
         Angle2_th       = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
                                         fileName='ExData/Angle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+
 
     #%%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
