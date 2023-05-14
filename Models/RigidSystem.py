@@ -39,7 +39,37 @@ fileName5       = 'Graphics_Exudyn/Bracket2.stl'
 oGround         = mbs.AddObject(ObjectGround())
 Marker1         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=oGround, 
                                                 localPosition=[0, 0, 0]))
+# First Body: Pillar
+L1              = 0.365                                 # Length in x-direction
+H1              = 1.4769                                # Height in y-direction
+W1              = 0.25                                  # Width in z-direction
+pMid1           = np.array([-0.017403, 0.577291, 0])    # Center of mass
+PillarP         = np.array([0, 0, 0])
+iCube1          = RigidBodyInertia(mass=93.26, com=pMid1,
+                                   inertiaTensor=np.array([[16.358844,-1.27808, 1.7e-5],
+                                                           [-1.27808, 0.612552, -5.9e-5],
+                                                           [1.7e-5,  -5.9e-5  , 16.534255]]),
+                                                               inertiaTensorAtCOM=True)
 
+graphicsBody1   = GraphicsDataFromSTLfile(fileName1, color4black,verbose=False, 
+                                                  invertNormals=True,invertTriangles=True)
+graphicsBody1   = AddEdgesAndSmoothenNormals(graphicsBody1, edgeAngle=0.25*pi,addEdges=True, 
+                                                     smoothNormals=True)
+graphicsCOM1    = GraphicsDataBasis(origin=iCube1.com, length=2*W1)
+
+# Definintion of pillar as body in Exudyn and node n1
+[n1, b1]        = AddRigidBody(mainSys=mbs,
+                             inertia=iCube1,  # includes COM
+                             nodeType=exu.NodeType.RotationEulerParameters,
+                             position=PillarP,
+                             rotationMatrix=np.diag([1, 1, 1]),
+                             gravity=g,
+                             graphicsDataList=[graphicsCOM1, graphicsBody1])
+
+Marker3         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[0, 0, 0]))                     #With Ground
+Marker4         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[-0.09, 1.4261, 0]))            #Lift Boom
+Marker5         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[0.17, 0.386113249, 0]))        # Cylinder 1 position
+       
 
 def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plotting):
     
@@ -51,36 +81,6 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
                                         # BODIES IN PATU CRANE
         #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         
-        # First Body: Pillar
-        L1              = 0.365                                 # Length in x-direction
-        H1              = 1.4769                                # Height in y-direction
-        W1              = 0.25                                  # Width in z-direction
-        pMid1           = np.array([-0.017403, 0.577291, 0])    # Center of mass
-        PillarP         = np.array([0, 0, 0])
-        iCube1          = RigidBodyInertia(mass=93.26, com=pMid1,
-                                   inertiaTensor=np.array([[16.358844,-1.27808, 1.7e-5],
-                                                           [-1.27808, 0.612552, -5.9e-5],
-                                                           [1.7e-5,  -5.9e-5  , 16.534255]]),
-                                                               inertiaTensorAtCOM=True)
-
-        graphicsBody1   = GraphicsDataFromSTLfile(fileName1, color4black,verbose=False, 
-                                                  invertNormals=True,invertTriangles=True)
-        graphicsBody1   = AddEdgesAndSmoothenNormals(graphicsBody1, edgeAngle=0.25*pi,addEdges=True, 
-                                                     smoothNormals=True)
-        graphicsCOM1    = GraphicsDataBasis(origin=iCube1.com, length=2*W1)
-
-        # Definintion of pillar as body in Exudyn and node n1
-        [n1, b1]        = AddRigidBody(mainSys=mbs,
-                             inertia=iCube1,  # includes COM
-                             nodeType=exu.NodeType.RotationEulerParameters,
-                             position=PillarP,
-                             rotationMatrix=np.diag([1, 1, 1]),
-                             gravity=g,
-                             graphicsDataList=[graphicsCOM1, graphicsBody1])
-
-        Marker3         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[0, 0, 0]))                     #With Ground
-        Marker4         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[-0.09, 1.4261, 0]))            #Lift Boom
-        Marker5         = mbs.AddMarker(MarkerBodyRigid(bodyNumber=b1, localPosition=[0.17, 0.386113249, 0]))        # Cylinder 1 position
        
        # Second Body: LiftBoom
         L2              = 3.01055           # Length in x-direction

@@ -8,20 +8,15 @@
 # Contact           : qasim.khadim@outlook.com,qkhadim22 (Github)
 # Dated             : 11-05-2023
 # Organizations     : University of Oulu in the collaboration of LUT University and University of Innsbruck.
-# Funding           : SANTTU Project
+# Funding           : Business of Finland (SANTTU Project)
 # Copyright         :
 
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
 from Models.RigidSystem import RigidMultibodyHydraulics
 
-RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=True, useFriction=True, 
-                                                    Plotting=True)                          
-
-
-
-
-
+RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=False, useFriction=True, 
+                                                    Plotting=False)                          
 
 
 # %%
