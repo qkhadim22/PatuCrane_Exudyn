@@ -4,6 +4,7 @@
 #PatuNotes.pdf.  
 
 # Author            : Qasim Khadim
+# Contributors      : Pauli Pöppönen (Graphics) 
 # Contact           : qasim.khadim@outlook.com,qkhadim22 (Github)
 # Dated             : 11-05-2023
 # Organizations     : University of Oulu in the collaboration of LUT University and University of Innsbruck.
