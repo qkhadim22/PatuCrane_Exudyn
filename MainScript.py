@@ -16,7 +16,7 @@
 
 from Models.RigidSystem import RigidMultibodyHydraulics
 
-RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=False, useFriction=True, 
+RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=True, useFriction=True, 
                                                     Plotting=False)                          
 
 

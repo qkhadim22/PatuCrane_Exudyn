@@ -1,7 +1,7 @@
 #Exudyn implicit second order time integration sensor output file
-#measure Body number = 3
+#measure Body number = 4
 #OutputVariableType = Rotation
-#simulation started = 2023-05-14,21:06:46
+#simulation started = 2023-05-15,10:07:16
 #columns contain: time, comma separated sensor values (e.g, x,y,z position coordinates)
 #number of sensor values = 3
 #Exudyn version = 1.6.103.dev1; Python3.8.13; Linux FLOAT64
