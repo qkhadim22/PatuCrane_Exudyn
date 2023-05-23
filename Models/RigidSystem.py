@@ -3,8 +3,6 @@
 #This files defines the simulation of hydraulically actuated rigid structure.
 
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
-import sys
-sys.exudynFast=True
 
 import exudyn as exu
 import numpy as np
@@ -21,6 +19,7 @@ mbs             = SC.AddSystem()
 #%%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 g               = [0,-9.81,0] # Gravity
 tEnd            = 20 #simulation time
+nRigidBodyNodes = 4
 h               = 1e-3 #step size
 nSteps          = int(tEnd/h)+2
 
@@ -33,6 +32,7 @@ fileName2       = 'Graphics_Exudyn/LiftBoom.stl'
 fileName3       = 'Graphics_Exudyn/TiltBoom+ExtensionBoom.stl'
 fileName4       = 'Graphics_Exudyn/Bracket1.stl'
 fileName5       = 'Graphics_Exudyn/Bracket2.stl'
+fileName6       = 'Graphics_Exudyn/TiltBoom+ExtensionBoom_MC.stl'
 
 
 #Ground body
@@ -220,7 +220,121 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
                                         fileName='ExData/LiftAngle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
         Angle2_t        = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
                                         fileName='ExData/TiltAngle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+    
+    else:
         
+        # Second Body: LiftBoom
+        W2              = 0.263342          # Width in z-direction
+        pMid2           = np.array([1.229248, 0.055596, 0])  # center of mass
+        iCube2          = RigidBodyInertia(mass=143.66, com=pMid2,
+                                        inertiaTensor=np.array([[1.055433, 1.442440,  -0.000003],
+                                                                [ 1.442440,  66.577004, 0],
+                                                                [ -0.000003,              0  ,  67.053707]]),
+                                        inertiaTensorAtCOM=True)
+        
+        graphicsBody2   = GraphicsDataFromSTLfile(fileName2, color4blue,
+                                        verbose=False, invertNormals=True,
+                                        invertTriangles=True)
+        graphicsBody2   = AddEdgesAndSmoothenNormals(graphicsBody2, edgeAngle=0.25*pi,
+                                            addEdges=True, smoothNormals=True)
+        graphicsCOM2    = GraphicsDataBasis(origin=iCube2.com, length=2*W2)  
+        
+       # Third Body: TiltBoom+ExtensionBoom   
+        W3              = 0.220         # Width in z-direction
+        pMid3           = np.array([ 0.754935,  0.010653, 0])  # center of mass
+        iCube3          = RigidBodyInertia(mass=141.942729+ 15.928340, com=pMid3,
+                                            inertiaTensor=np.array([[1.055433, 1.442440,  -0.000003],
+                                                                    [1.442440,  66.577004,    0],
+                                                                    [ -0.000003, 0,        67.053707]]),
+                                                                     inertiaTensorAtCOM=True)
+        graphicsBody3   = GraphicsDataFromSTLfile(fileName6, color4blue,verbose=False, invertNormals=True,invertTriangles=True)
+        graphicsBody3   = AddEdgesAndSmoothenNormals(graphicsBody3, edgeAngle=0.25*pi,addEdges=True, smoothNormals=True)
+        graphicsCOM3    = GraphicsDataBasis(origin=iCube3.com, length=2*W3)
+   
+        # 4th Body: Bracket 1
+        W4              = 0.15        # Width in z-direction
+        pMid4           = np.array([-0.257068, 0.004000, 0])  # center of mass, body0
+        iCube4          = RigidBodyInertia(mass=11.524039, com=pMid4,
+                                            inertiaTensor=np.array([[0.333066, 0.017355, 0],
+                                                                    [0.017355, 0.081849, 0],
+                                                                    [0,              0, 0.268644]]),
+                                                                     inertiaTensorAtCOM=True)
+
+        graphicsBody4   = GraphicsDataFromSTLfile(fileName4, color4blue,verbose=False, invertNormals=True,invertTriangles=True)
+        graphicsBody4   = AddEdgesAndSmoothenNormals(graphicsBody4, edgeAngle=0.25*pi,addEdges=True, smoothNormals=True)
+        graphicsCOM4    = GraphicsDataBasis(origin=iCube4.com, length=2*W4) 
+            
+       # 5th Body: Bracket 2
+        W5              = 0.15           # Width in z-direction
+        pMid5           = np.array([-0.212792, 0, 0])  # center of mass, body0
+        iCube5          = RigidBodyInertia(mass=7.900191, com=pMid5,
+                                             inertiaTensor=np.array([[0.052095, 0, 0],
+                                                                     [0,  0.260808, 0],
+                                                                     [0,              0,  0.216772]]),
+                                                                     inertiaTensorAtCOM=True)
+        
+        graphicsBody5   = GraphicsDataFromSTLfile(fileName5, color4blue,verbose=False, invertNormals=True,invertTriangles=True)
+        graphicsBody5   = AddEdgesAndSmoothenNormals(graphicsBody5, edgeAngle=0.25*pi,addEdges=True, smoothNormals=True)
+        graphicsCOM5    = GraphicsDataBasis(origin=iCube5.com, length=2*W5)
+                        
+        #+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        nGeneric        = mbs.AddNode(NodeGenericODE2(referenceCoordinates=[0.]*nRigidBodyNodes,initialCoordinates=[0.]*nRigidBodyNodes,
+                                       initialCoordinates_t=[0.]*nRigidBodyNodes,numberOfODE2Coordinates=nRigidBodyNodes))
+        inertiaList     = [iCube2, iCube4, iCube5, iCube3]
+        
+        graphicsList    = [[graphicsCOM2, graphicsBody2], [graphicsCOM4, graphicsBody4],
+                           [graphicsCOM5, graphicsBody5], [graphicsCOM3, graphicsBody3]] 
+        
+        #create KinematicTree
+        JointPos        = [[-0.09, 1.4261, 0], [2.689524056550459, -6e-3, 0 ],
+                           [-0.459565102810030, 0.040343557564693, 0],
+                           [-0.474565102810030, 0, 0] ]
+
+        
+        jointTypes      = [exu.JointType.RevoluteZ, exu.JointType.RevoluteZ,
+                           exu.JointType.RevoluteZ,exu.JointType.RevoluteZ] 
+        BodiesMasses    = []
+        BodiesCOMs      = exu.Vector3DList() 
+        BodiesInertias  = exu.Matrix3DList()
+        jointTrans      = exu.Matrix3DList()
+        jointOffsets    = exu.Vector3DList()
+        A               = np.eye(3)
+        
+        for i in range(nRigidBodyNodes):    
+            inertia          = inertiaList[i]
+            BodiesMasses    += [inertia.Mass()]
+            BodiesCOMs.Append(inertia.COM())
+            BodiesInertias.Append(inertia.InertiaCOM())
+            
+            if i == 0:
+                A = RotationMatrixZ(mt.radians(-1.227343749651500))
+            if i == 1:
+                A = RotationMatrixZ(mt.radians(-33.195078970135967))
+            if i == 2:
+                A = RotationMatrixZ(mt.radians(-147.7373))  
+            if i == 3:
+                A = RotationMatrixZ(mt.radians(-181.082031486865900+1.9))                             
+                    
+            jointTrans.Append(A)
+            jointOffsets.Append(JointPos[i])
+        
+        
+        oKT             = mbs.AddObject(ObjectKinematicTree(nodeNumber=nGeneric, jointTypes=jointTypes, linkParents=np.arange(nRigidBodyNodes)-1,
+                                  jointTransformations=jointTrans, jointOffsets=jointOffsets, linkInertiasCOM=BodiesInertias,
+                                  linkCOMs=BodiesCOMs, linkMasses=BodiesMasses, gravity=g,
+                                  visualization=VObjectKinematicTree(graphicsDataList = graphicsList)))
+
+        # Adding Markers in the bodies
+        Marker8         = mbs.AddMarker(MarkerKinematicTreeRigid(objectNumber=oKT, linkNumber=0,localPosition=[0.3025, -0.105, 0]))
+        Marker9         = mbs.AddMarker(MarkerKinematicTreeRigid(objectNumber=oKT, linkNumber=0,localPosition=[1.263, 0.206702194, 0]))
+        Marker14        = mbs.AddMarker(MarkerKinematicTreeRigid(objectNumber=oKT, linkNumber=0,localPosition=[2.879420180699481, -0.040690041435711005, 0]))        
+        Marker18        = mbs.AddMarker(MarkerKinematicTreeRigid(objectNumber=oKT, linkNumber=2,localPosition=[0, 0, 0]))                        #With LIft Boom 
+        Marker19        = mbs.AddMarker(MarkerKinematicTreeRigid(objectNumber=oKT, linkNumber=3,localPosition=[0.095, -0.24043237, 0]))                   #With LIft Boom,-0.475                                                                    
+ 
+        # Revolute joint between Bracket 2 and TiltBoom
+        mbs.AddObject(GenericJoint(markerNumbers=[Marker19, Marker14],constrainedAxes=[1,1,0,0,0,0],
+                             visualization=VObjectJointGeneric(axesRadius=0.23*W5,axesLength=1.0*W5)))        
+            
     if Hydraulics:
         
         Data            = scipy.io.loadmat('ExData/PATU@2DOF')
@@ -357,53 +471,65 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
                                                    fileName='ExData/sPressures1.txt',outputVariableType=exu.OutputVariableType.Coordinates))
         sPressures2     = mbs.AddSensor(SensorNode(nodeNumber=nODE2, storeInternal=True, 
                                                    fileName='ExData/sPressures2.txt',outputVariableType=exu.OutputVariableType.Coordinates))
-        Angle1h         = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
+        if RedundantCoordinates:
+            Angle1h         = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
                                         fileName='ExData/Angle1.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
-        Angle2h         = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
+            Angle2h         = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
                                         fileName='ExData/Angle2.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
-        Angle1_th       = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
+            Angle1_th       = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
                                         fileName='ExData/Angle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
-        Angle2_th       = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
+            Angle2_th       = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
                                         fileName='ExData/Angle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
-
-
+        else:
+            Angle1h         = mbs.AddSensor(SensorKinematicTree(objectNumber=oKT, linkNumber=0, localPosition=[0,0,0.0],
+                                        storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
+            Angle2h         = mbs.AddSensor(SensorKinematicTree(objectNumber=oKT, linkNumber=3, localPosition=[0.095, -0.24043237,0],
+                                          storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
+            Angle1_th       = mbs.AddSensor(SensorKinematicTree(objectNumber=oKT, linkNumber=0, localPosition=[0,0,0.0],
+                                         storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+            Angle2_th       = mbs.AddSensor(SensorKinematicTree(objectNumber=oKT, linkNumber=3, localPosition=[0.095, -0.24043237,0],
+                                           storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
     #%%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     
     mbs.Assemble()
     
     #Simulation settings
-    simulationSettings                                          = exu.SimulationSettings()
-    simulationSettings.timeIntegration.numberOfSteps            = nSteps
-    simulationSettings.timeIntegration.endTime                  = tEnd
-    simulationSettings.timeIntegration.verboseMode              = 1
+    simulationSettings                                                  = exu.SimulationSettings()
+    simulationSettings.timeIntegration.numberOfSteps                    = nSteps
+    simulationSettings.timeIntegration.endTime                          = tEnd
+    simulationSettings.timeIntegration.verboseMode                      = 1
     # simulationSettings.timeIntegration.simulateInRealtime     = True
-    simulationSettings.solutionSettings.sensorsWritePeriod      = h
-    simulationSettings.linearSolverType                         = exu.LinearSolverType.EigenSparse
-    simulationSettings.timeIntegration.newton.useModifiedNewton = True
-    simulationSettings.timeIntegration.stepInformation         += 8
+    simulationSettings.solutionSettings.sensorsWritePeriod              = h
+    simulationSettings.linearSolverType                                 = exu.LinearSolverType.EigenSparse
+    simulationSettings.timeIntegration.newton.useModifiedNewton         = True
+    simulationSettings.timeIntegration.stepInformation                  += 8
     # simulationSettings.displayComputationTime                 = True
-    simulationSettings.displayStatistics                        = True
-
+    simulationSettings.displayStatistics                                = True
+    simulationSettings.timeIntegration.newton.relativeTolerance         = 1e-6
+    simulationSettings.timeIntegration.generalizedAlpha.spectralRadius  = 0.7
+    simulationSettings.timeIntegration.relativeTolerance                = 1e-6
+    
     #Visualization
-    SC.visualizationSettings.window.renderWindowSize            = [1600, 1200]
-    SC.visualizationSettings.openGL.multiSampling               = 4
-    SC.visualizationSettings.openGL.lineWidth                   = 3
-    SC.visualizationSettings.general.autoFitScene               = False
-    SC.visualizationSettings.nodes.drawNodesAsPoint             = False
-    SC.visualizationSettings.nodes.showBasis                    = True
+    SC.visualizationSettings.window.renderWindowSize                    = [1600, 1200]
+    SC.visualizationSettings.openGL.multiSampling                       = 4
+    SC.visualizationSettings.openGL.lineWidth                           = 3
+    SC.visualizationSettings.general.autoFitScene                       = False
+    SC.visualizationSettings.nodes.drawNodesAsPoint                     = False
+    SC.visualizationSettings.nodes.showBasis                            = True
     
     exu.SolveDynamic(mbs, simulationSettings=simulationSettings,solverType=exu.DynamicSolverType.TrapezoidalIndex2)
     
-    from exudyn.interactive import SolutionViewer
-    SolutionViewer(mbs)
+    #from exudyn.interactive import SolutionViewer
+    #SolutionViewer(mbs)
     
     if Plotting:
-        Angle1   = mbs.GetSensorStoredData(Angle1)
-        Angle2   = mbs.GetSensorStoredData(Angle2)
-        Angle1_t = mbs.GetSensorStoredData(Angle1_t)
-        Angle2_t = mbs.GetSensorStoredData(Angle2_t)
         
         if not Hydraulics:
+            Angle1   = mbs.GetSensorStoredData(Angle1)
+            Angle2   = mbs.GetSensorStoredData(Angle2)
+            Angle1_t = mbs.GetSensorStoredData(Angle1_t)
+            Angle2_t = mbs.GetSensorStoredData(Angle2_t)
+            
         
         # Angle1 of Liftboom
             fig, ax = plt.subplots()
