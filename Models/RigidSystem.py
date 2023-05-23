@@ -3,6 +3,8 @@
 #This files defines the simulation of hydraulically actuated rigid structure.
 
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
+import sys
+sys.exudynFast = True
 
 import exudyn as exu
 import numpy as np
