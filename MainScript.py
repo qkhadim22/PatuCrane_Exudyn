@@ -23,7 +23,7 @@ if Rigid:
     RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=True, useFriction=True, 
                                                     Plotting=True)                          
 else:
-    FFRFHydraulics(nModes=4, loadFromSavedNPY=True, animateModes=False, Hydraulics=False, Visualization=True,
+    FFRFHydraulics(nModes=4, loadFromSavedNPY=True, ComputeModes=False, Hydraulics=False, Visualization=True,
              useFriction=True, Plotting=False)
 
 # %%

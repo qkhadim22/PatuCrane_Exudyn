@@ -79,7 +79,7 @@ mbs.AddObject(GenericJoint(markerNumbers=[markerGround, Marker3],constrainedAxes
 visualization=VObjectJointGeneric(axesRadius=0.2*W1,axesLength=1.4*W1)))
 
 
-def FFRFHydraulics(nModes, loadFromSavedNPY, animateModes, Hydraulics,Visualization,
+def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualization,
                  useFriction,Plotting):
     
     if not loadFromSavedNPY:
@@ -103,10 +103,11 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, animateModes, Hydraulics,Visualizat
         feL.LoadFromFile(fileNameL)
         cpuTime = time.time() - start_time
         print("--- importing FEM data took: %s seconds ---" % (cpuTime))
-        
-    print("compute free modes... ")
-    feL.ComputeEigenmodes(nModes, excludeRigidBodyModes = 6, useSparseSolver = True)
-    print("eigen freq.=", feL.GetEigenFrequenciesHz())
+    
+    if ComputeModes:    
+        print("compute free modes... ")
+        feL.ComputeEigenmodes(nModes, excludeRigidBodyModes = 6, useSparseSolver = True)
+        print("eigen freq.=", feL.GetEigenFrequenciesHz())
     
     pMid                = [1.1584,0.37931E-01,0.81411E-06]
     pTip                = [2.89,0.0246,0]
@@ -125,9 +126,10 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, animateModes, Hydraulics,Visualizat
         feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
                                                      useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
         
-        print("Hurty-Craig Bampton modes Of Lift Boom... ")
-        print("eigen freq.=", feL.GetEigenFrequenciesHz())
-        print("HCB modes needed %.3f seconds" % (time.time() - start_time))
+        if ComputeModes:
+            print("Hurty-Craig Bampton modes Of Lift Boom... ")
+            print("eigen freq.=", feL.GetEigenFrequenciesHz())
+            print("HCB modes needed %.3f seconds" % (time.time() - start_time))
         
         cms             = ObjectFFRFreducedOrderInterface(feL)
         objFFRF         = cms.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
