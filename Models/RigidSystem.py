@@ -519,10 +519,11 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
     SC.visualizationSettings.nodes.drawNodesAsPoint                     = False
     SC.visualizationSettings.nodes.showBasis                            = True
     
-    exu.SolveDynamic(mbs, simulationSettings=simulationSettings,solverType=exu.DynamicSolverType.TrapezoidalIndex2)
+    exu.SolveDynamic(mbs, simulationSettings=simulationSettings,
+                                solverType=exu.DynamicSolverType.TrapezoidalIndex2)
     
-    #from exudyn.interactive import SolutionViewer
-    #SolutionViewer(mbs)
+    from exudyn.interactive import SolutionViewer
+    SolutionViewer(mbs)
     
     if Plotting:
         
