@@ -20,10 +20,10 @@ from Models.FlexibleSystem  import FFRFHydraulics
 Rigid =  False
 
 if Rigid:
-    RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=True, useFriction=True, 
+    RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=False, useFriction=True, 
                                                     Plotting=True)                          
 else:
-    FFRFHydraulics(nModes=4, loadFromSavedNPY=True, ComputeModes=False, Hydraulics=False, Visualization=True,
+    FFRFHydraulics(nModes=4, loadFromSavedNPY=True, ComputeModes=True, Hydraulics=True, Visualization=True,
              useFriction=True, Plotting=False)
 
 # %%
