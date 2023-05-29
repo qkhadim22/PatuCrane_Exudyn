@@ -15,15 +15,9 @@
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
 from Models.RigidSystem     import RigidMultibodyHydraulics
-#from Models.FlexibleSystem  import FFRFHydraulics
 
-#Rigid =  True
-
-#if Rigid:
-RigidMultibodyHydraulics(RedundantCoordinates=False, Hydraulics=True, useFriction=True, 
+RigidMultibodyHydraulics(RedundantCoordinates=True, Hydraulics=True, useFriction=True, 
                                                     Plotting=True)                          
-#else:
- #   FFRFHydraulics(nModes=2, loadFromSavedNPY=True, ComputeModes=True, Hydraulics=True, Visualization=True,
-  #           useFriction=True, Plotting=False)
+
 
 # %%
