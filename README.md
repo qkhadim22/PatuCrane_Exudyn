@@ -1,7 +1,5 @@
 # PatuCrane_Exudyn
-#This file includes the simulation of hydraulically actuated rigid multibody crane (PATU655 crane) in Exudyn environment 
-#using redundtant and minimal coordinates. The details about rigid bodies and hydraulics in the crane can be found in 
-#PatuNotes.pdf.  
+This file includes the simulation of hydraulically actuated rigid multibody crane (PATU655 crane) in Exudyn environment using redundtant and minimal coordinates. The details about rigid bodies and hydraulics in the crane can be found in PatuNotes.pdf.  
 
 # Author            : Qasim Khadim
 # Contributors      : Pauli Pöppönen (Graphics) MrValhe (Github) 

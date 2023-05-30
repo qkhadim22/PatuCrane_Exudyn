@@ -28,7 +28,7 @@ mbs = SC.AddSystem()
 
 # physical parameters
 g           = [0, -9.81, 0]  # Gravity
-tEnd        = 20  # simulation time
+tEnd        = 24  # simulation time
 h           = 1e-3  # step size
 nSteps      = int(tEnd/h)+2
 
@@ -36,11 +36,11 @@ nSteps      = int(tEnd/h)+2
 fileName1       = 'Graphics_Exudyn/Pillar.stl'
 fileName4       = 'Graphics_Exudyn/Bracket1.stl'
 fileName5       = 'Graphics_Exudyn/Bracket2.stl'
-fileNameL       = 'LiftBoomANSYS/LiftBoom' #for load/save of FEM data
-fileNameT       = 'TiltBoomANSYS/TiltBoom' #for load/save of FEM data
+
+#fileNameT       = 'TiltBoomANSYS/TiltBoom' #for load/save of FEM data
 
 feL             = FEMinterface()
-feT             = FEMinterface()
+#feT             = FEMinterface()
 
 #Ground body
 oGround         = mbs.AddObject(ObjectGround())
@@ -82,53 +82,77 @@ mbs.AddObject(GenericJoint(markerNumbers=[markerGround, Marker3],constrainedAxes
 visualization=VObjectJointGeneric(axesRadius=0.2*W1,axesLength=1.4*W1)))
 
 
-def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualization,
-                 useFriction,Plotting):
+def FFRFHydraulics(FineMesh, nModes, loadFromSavedNPY, ComputeModes, FreeModes, HCB, ModeAnimation, Hydraulics,
+                   useFriction, Visualization,Plotting):
     
-    if not loadFromSavedNPY:
-        start_time                      = time.time()
-        inputFileNameStiffnessMatrix    = 'LiftBoomANSYS/'+'stiffnessMatrix.txt'
-        inputFileNameMassMatrix         = 'LiftBoomANSYS/'+'massMatrix.txt'
-        inputFileNameNodalCoordinates   = 'LiftBoomANSYS/'+'nodalCoordinates.txt'
-        inputFileNameElements           = 'LiftBoomANSYS/'+'elements.txt'
-        inputFileNameNodalMappingVector = 'LiftBoomANSYS/'+'nodalMappingVector.txt'
-        feL.ReadStiffnessMatrixFromAnsys(inputFileNameStiffnessMatrix, inputFileNameNodalMappingVector, verbose=True)
-        feL.ReadMassMatrixFromAnsys(inputFileNameMassMatrix, inputFileNameNodalMappingVector, verbose=True)
-        feL.ReadNodalCoordinatesFromAnsys(inputFileNameNodalCoordinates, verbose=True)
-        feL.ReadElementsFromAnsys(inputFileNameElements, verbose=True)
-         
-        inputFileNameStiffnessMatrixT   = 'TiltBoomANSYS/'+'stiffnessMatrix.txt'
-        inputFileNameMassMatrixT        = 'TiltBoomANSYS/'+'massMatrix.txt'
-        inputFileNameNodalCoordinatesT  = 'TiltBoomANSYS/'+'nodalCoordinates.txt'
-        inputFileNameElementsT          = 'TiltBoomANSYS/'+'Elements.txt'
-        inputFileNameNodalMappingVectorT= 'TiltBoomANSYS/'+'nodalMappingVector.txt'       
-        feT.ReadStiffnessMatrixFromAnsys(inputFileNameStiffnessMatrixT, inputFileNameNodalMappingVectorT, verbose=True)
-        feT.ReadMassMatrixFromAnsys(inputFileNameMassMatrixT, inputFileNameNodalMappingVectorT, verbose=True)
-        feT.ReadNodalCoordinatesFromAnsys(inputFileNameNodalCoordinatesT, verbose=True)
-        feT.ReadElementsFromAnsys(inputFileNameElementsT, verbose=True)       
+    global Fc, Fs, sig2, vs, Av0, Av1
+    
+    if FineMesh:
         
-        feL.SaveToFile(fileNameL)
-        feT.SaveToFile(fileNameT)
+        fileNameL       = 'LiftBoom/ABAQUS/LiftBoom-freebody' #To load fine mesh data from Abaqus
         
-        print("--- saving LiftBoom FEM data took: %s seconds ---" % (time.time() - start_time)) 
+        if not loadFromSavedNPY: 
+                start_time                      = time.time()
+                nodes                           = feL.ImportFromAbaqusInputFile(fileNameL+'.inp', typeName='Part', name='P000524_A_1-Nostopuomi_v2')
+                feL.ReadMassMatrixFromAbaqus(fileName=fileNameL + '_MASS2.mtx')             #Load mass matrix
+                feL.ReadStiffnessMatrixFromAbaqus(fileName=fileNameL + '_STIF2.mtx')        #Load stiffness matrix
+                feL.SaveToFile(fileNameL)
+                print("--- saving LiftBoom FEM Abaqus data took: %s seconds ---" % (time.time() - start_time)) 
+           
+                if ComputeModes:
+                    
+                     from Models.ComputeModes import LiftBoomModes
+                     LiftBoomModes(feL, FineMesh, nModes, FreeModes, HCB, ModeAnimation)
+                                        
+        else:       
+                print('importing Abaqus FEM data structure of Lift Boom...')
+                start_time = time.time()
+                feL.LoadFromFile(fileNameL)
+                cpuTime = time.time() - start_time
+                print("--- importing FEM data took: %s seconds ---" % (cpuTime))
+                
+                # For computing modes
+                
+                if ComputeModes:
+                    
+                     from Models.ComputeModes import LiftBoomModes
+                     LiftBoomModes(feL, FineMesh, nModes, FreeModes, HCB, ModeAnimation)
+                     
+                     
     else:
         
-        print('importing FEM data structure of Lift Boom and Tilt Boom...')
-        start_time = time.time()
-        feL.LoadFromFile(fileNameL)
-        feT.LoadFromFile(fileNameT)
-        cpuTime = time.time() - start_time
-        print("--- importing FEM data took: %s seconds ---" % (cpuTime))
-    
-    if ComputeModes:    
-        print("compute free modes... ")
-        feL.ComputeEigenmodes(nModes, excludeRigidBodyModes = 6, useSparseSolver = True)
-        feT.ComputeEigenmodes(nModes, excludeRigidBodyModes = 6, useSparseSolver = True)
-        print("eigen freq.=", feL.GetEigenFrequenciesHz())
-        print("eigen freq.=", feT.GetEigenFrequenciesHz())
-    
-    pMid                = [1.1584,0.37931E-01,0.81411E-06]
-    pTip                = [2.89,0.0246,0]
+        fileNameL       = 'LiftBoom/ANSYS/LiftBoom' #To load fine mesh data from AANSYS
+        
+        if not loadFromSavedNPY: 
+                start_time                          = time.time()
+                
+                inputFileNameStiffnessMatrixL       = 'LiftBoom/ANSYS/'+'stiffnessMatrix.txt'
+                inputFileNameMassMatrixL            = 'LiftBoom/ANSYS/'+'massMatrix.txt'
+                inputFileNameNodalCoordinatesL      = 'LiftBoom/ANSYS/'+'nodalCoordinates.txt'
+                inputFileNameElementsL              = 'LiftBoom/ANSYS/'+'elements.txt'
+                inputFileNameNodalMappingVectorL    = 'LiftBoom/ANSYS/'+'nodalMappingVector.txt'                
+                feL.ReadStiffnessMatrixFromAnsys(inputFileNameStiffnessMatrixL, inputFileNameNodalMappingVectorL, verbose=True)
+                feL.ReadMassMatrixFromAnsys(inputFileNameMassMatrixL, inputFileNameNodalMappingVectorL, verbose=True)
+                feL.ReadNodalCoordinatesFromAnsys(inputFileNameNodalCoordinatesL, verbose=True)
+                feL.ReadElementsFromAnsys(inputFileNameElementsL, verbose=True)                
+                feL.SaveToFile(fileNameL)
+                print("--- saving LiftBoom FEM ANSYS data took: %s seconds ---" % (time.time() - start_time)) 
+                
+                if ComputeModes:
+                    
+                     from Models.ComputeModes import LiftBoomModes
+                     LiftBoomModes(feL, FineMesh, nModes, FreeModes, HCB, ModeAnimation)
+        else:
+                print('importing ANSYS FEM data structure of Lift Boom...')      
+                start_time = time.time()
+                feL.LoadFromFile(fileNameL)                
+                cpuTime = time.time() - start_time
+                print("--- importing FEM data took: %s seconds ---" % (cpuTime))
+        
+                if ComputeModes:
+                    
+                     from Models.ComputeModes import LiftBoomModes
+                     LiftBoomModes(feL, FineMesh, nModes, FreeModes, HCB, ModeAnimation)
     
     # Boundary condition at pillar
     p2                  = [0, 0,-10e-2]
@@ -138,128 +162,57 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
     pJoint1             = feL.GetNodePositionsMean(nodeListJoint1)
     nodeListJoint1Len   = len(nodeListJoint1)
     noodeWeightsJoint1  = [1/nodeListJoint1Len]*nodeListJoint1Len
+           
+    # Boundary condition at Piston 1
+    p4                  = [0.3025,-0.1049,-10e-2]
+    p3                  = [0.3025,-0.1049, 10e-2]
+    radius2             = 3.6e-002
+    nodeListPist1       = feL.GetNodesOnCylinder(p3, p4, radius2, tolerance=1e-2)  
+    pJoint2             = feL.GetNodePositionsMean(nodeListPist1)
+    nodeListPist1Len    = len(nodeListPist1)
+    noodeWeightsPist1   = [1/nodeListPist1Len]*nodeListPist1Len
     
-    # Boundary condition with Tilt Boom
-    p10                 = [2.89,0.0246,-7.4e-2]
-    p9                  = [2.89,0.0246, 7.4e-2]
-    radius5L            = 5.2e-002
-    nodeListJoint5L     = feL.GetNodesOnCylinder(p9, p10, radius5L, tolerance=1e-2)  
-    pJoint5L            = feL.GetNodePositionsMean(nodeListJoint5L)
-    nodeListJoint5LLen  = len(nodeListJoint5L)
-    noodeWeightsJoint5L = [1/nodeListJoint5LLen]*nodeListJoint5LLen
-    
-    # Joint 3
-    p12                 = [0, 0,-9.63e-2]
-    p11                 = [0, 0, 9.63e-2]
-    radius1T            = 4.8e-002
-    nodeListJoint1T     = feT.GetNodesOnCylinder(p11, p12, radius1T, tolerance=1e-2)  
-    pJoint1T            = feT.GetNodePositionsMean(nodeListJoint1T)
-    nodeListJoint1TLen  = len(nodeListJoint1T)
-    noodeWeightsJoint1T = [1/nodeListJoint1TLen]*nodeListJoint1TLen
-        
-    
-    
-    if not Hydraulics:
-        boundaryList    = [nodeListJoint1, nodeListJoint5L]
-        boundaryListT   = [nodeListJoint1T]
-        
-        start_time      = time.time()
-        feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
-                                                     useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
-       
-        feT.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryListT, nEigenModes=nModes, 
-                                                     useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
-              
-        if ComputeModes:
-            print("Hurty-Craig Bampton modes Of Lift Boom and Tilt Boom... ")
-            print("eigen freq.=", feL.GetEigenFrequenciesHz())
-            print("eigen freq.=", feT.GetEigenFrequenciesHz())
-            print("HCB modes needed %.3f seconds" % (time.time() - start_time))
-        
-        Lift            = ObjectFFRFreducedOrderInterface(feL)
-        #Tilt            = ObjectFFRFreducedOrderInterface(feT)
-        
-        LiftFFRF        = Lift.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
+    # STEP 2: Craig-Bampton Modes
+    boundaryList        = [nodeListJoint1, nodeListPist1]
+    start_time          = time.time()
+    feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
+                                                    useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
+    print("Hurty-Craig Bampton modes... ")
+    print("eigen freq.=", feL.GetEigenFrequenciesHz())
+    print("HCB modes needed %.3f seconds" % (time.time() - start_time))  
+           
+    LiftBoom            = ObjectFFRFreducedOrderInterface(feL)
+    LiftBoomFFRF        = LiftBoom.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
                                               initialVelocity=[0,0,0], 
                                               initialAngularVelocity=[0,0,0],
-                                              rotationMatrixRef  = RotationMatrixZ(mt.radians(-1.227343749651500)),
+                                              rotationMatrixRef  = RotationMatrixZ(mt.radians(-27.227343749651500)),
                                               gravity=g,
-                                              color=[0.9,0.9,0.9,1.],)
-        
-        #TiltFFRF        = Tilt.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0])+np.array([2.879420180699481, -0.040690041435711005, 0]), 
-        #                                      initialVelocity=[0,0,0], 
-        #                                      initialAngularVelocity=[0,0,0],
-        #                                      rotationMatrixRef  = RotationMatrixZ(mt.radians(-1.582031486865900)),
-        #                                      gravity=g,
-        #                                      color=[0.9,0.9,0.9,1.],) 
-        
-        Marker7         = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftFFRF['oFFRFreducedOrder'],
-                                              meshNodeNumbers=np.array(nodeListJoint1), #these are the meshNodeNumbers
-                                              weightingFactors=noodeWeightsJoint1))
-
-        #Marker11        = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftFFRF['oFFRFreducedOrder'],
-        #                                      meshNodeNumbers=np.array(nodeListJoint5L), #these are the meshNodeNumbers
-        #                                      weightingFactors=noodeWeightsJoint5L))
-        
-        #Marker7         = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=objFFRF['oFFRFreducedOrder'],
-         #                                     meshNodeNumbers=np.array(nodeListJoint1), #these are the meshNodeNumbers
-         #                                     weightingFactors=noodeWeightsJoint1))                
-      
-        mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
-                           visualization=VObjectJointGeneric(axesRadius=0.18*0.263342,axesLength=1.1*0.263342)))
-        
-        mbs.Assemble()
-        
-        
-    #%%+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                                              color=[0.1,0.9,0.1,1.],)
     
-    else:
-        
-        colCyl              = color4orange
-        colPis              = color4grey 
-        
-        # Piston 1
-        p4                  = [0.3025,-0.1049,-10e-2]
-        p3                  = [0.3025,-0.1049, 10e-2]
-        radius2             = 3.6e-002
-        nodeListPist1       = feL.GetNodesOnCylinder(p3, p4, radius2, tolerance=1e-2) 
-        pJoint2             = feL.GetNodePositionsMean(nodeListPist1)
-        nodeListPist1Len    = len(nodeListPist1)
-        noodeWeightsPist1   = [1/nodeListPist1Len]*nodeListPist1Len
-        
-        print("compute HCB modes... ")
-        boundaryList        = [nodeListJoint1, nodeListPist1]
-        start_time          = time.time()
-        feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
-                                          useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
-        
-        print("Hurty-Craig Bampton modes... ")
-        print("eigen freq.=", feL.GetEigenFrequenciesHz())
-        print("HCB modes needed %.3f seconds" % (time.time() - start_time))
-         
-        cms                = ObjectFFRFreducedOrderInterface(feL)
-        objFFRF            = cms.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
-                                              initialVelocity=[0,0,0], 
-                                              initialAngularVelocity=[0,0,0],
-                                              rotationMatrixRef  = RotationMatrixZ(mt.radians(14.241406240125720)),
-                                              gravity=g,
-                                              color=[0.9,0.9,0.9,1.],)
-         
-        Marker7           = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=objFFRF['oFFRFreducedOrder'],
+    Marker7             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
                                               meshNodeNumbers=np.array(nodeListJoint1), #these are the meshNodeNumbers
                                               weightingFactors=noodeWeightsJoint1))
-        
-        Marker8           = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=objFFRF['oFFRFreducedOrder'],
+    
+    Marker8             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
                                               meshNodeNumbers=np.array(nodeListPist1), #these are the meshNodeNumbers
                                               weightingFactors=noodeWeightsPist1))
+    
+    if not Hydraulics:
         
         #Revolute Joint
         mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
                            visualization=VObjectJointGeneric(axesRadius=0.18*0.263342,axesLength=1.1*0.263342)))
-    
-    
-    
+    else:
+        
+        #Revolute Joint
+        mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
+                           visualization=VObjectJointGeneric(axesRadius=0.18*0.263342,axesLength=1.1*0.263342)))
+        
+        colCyl              = color4orange
+        colPis              = color4grey 
+        
         import scipy.io
+        
         Data             = scipy.io.loadmat('ExData/Lift@1DOF')
         DataM            =  Data['Xt']
         DataU            =  Data['U1']
@@ -275,7 +228,7 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
         dAM              =  DataM[1, :]
         Fm               =  DataFm[0,:]
         U                =  DataU[0, :]
-        pP               =  140e5
+        pP               =  100e5
         L_Cyl            =  820e-3                        # Cylinder length
         D_Cyl            =  100e-3                        # Cylinder dia
         A_1              = (pi/4)*(D_Cyl)**2             # Area of cylinder side
@@ -294,7 +247,6 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
         Bh               = 700e6
         Bc               = 2.1000e+11
         Bo               = 1650e6
-        E0               = 3.5e14
         Fc               = 210
         Fs               = 300
         sig2             = 330
@@ -302,8 +254,8 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
         
         #ODE1 for pressures:
         nODE1            = mbs.AddNode(NodeGenericODE1(referenceCoordinates=[0,0],
-                                    initialCoordinates=[2.8011819152294506e+06,
-                                                        3.327340587824465e+06], #initialize with 20 bar
+                                    initialCoordinates=[2.390224339049967e+06,
+                                                        2.087875598556137e+06], #initialize with 20 bar
                                     numberOfODE1Coordinates=2))
         
         
@@ -331,7 +283,7 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
                                                             'colorPiston': color4grey}))
             
         def PreStepUserFunction(mbs, t):
-            
+                        
             Av0 = U[mt.trunc(t/h)]
             Av1 = -Av0
             
@@ -340,11 +292,8 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
 
             return True
         
-        mbs.SetPreStepUserFunction(PreStepUserFunction)
+        mbs.SetPreStepUserFunction(PreStepUserFunction) 
         
-        #nMid            = feL.GetNodeAtPoint(pMid)
-        #nTip            = feL.GetNodeAtPoint(pTip)
-        # Sensor measurements  
         sForce          = mbs.AddSensor(SensorObject(objectNumber=oHA1, storeInternal=True, 
                                                      fileName='ExData/sForce.txt', outputVariableType=exu.OutputVariableType.Force))
         sDistance       = mbs.AddSensor(SensorObject(objectNumber=oHA1, storeInternal=True, 
@@ -354,19 +303,11 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
         sVelocity       = mbs.AddSensor(SensorObject(objectNumber=oHA1, storeInternal=True,
                                                      fileName='ExData/sVelocity.txt', outputVariableType=exu.OutputVariableType.Velocity))
         sPressures      = mbs.AddSensor(SensorNode(nodeNumber=nODE1, storeInternal=True, 
-                                                   fileName='ExData/sPressures.txt',outputVariableType=exu.OutputVariableType.Coordinates))
-        #Angle          = mbs.AddSensor(SensorSuperElement(bodyNumber=objFFRF['oFFRFreducedOrder'], meshNodeNumber=np.array(nodeListJoint1),
-         #                          storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
-        #Angle_t        = mbs.AddSensor(SensorSuperElement(bodyNumber=objFFRF['oFFRFreducedOrder'], localPosition=[0,0,0.0],
-         #                          storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
-        #Angle_tt       = mbs.AddSensor(SensorSuperElement(bodyNumber=objFFRF['oFFRFreducedOrder'], localPosition=[0,0,0.0],
-         #                          storeInternal=True,outputVariableType = exu.OutputVariableType.Acceleration))     
-
-        mbs.Assemble()
-
-
+                                                   fileName='ExData/sPressures.txt',outputVariableType=exu.OutputVariableType.Coordinates))   
+    
+        
+    mbs.Assemble()
     simulationSettings = exu.SimulationSettings()
-
     simulationSettings.timeIntegration.numberOfSteps            = nSteps
     simulationSettings.timeIntegration.endTime                  = tEnd
     simulationSettings.timeIntegration.verboseMode              = 1
@@ -434,7 +375,7 @@ def FFRFHydraulics(nModes, loadFromSavedNPY, ComputeModes, Hydraulics,Visualizat
         plt.plot(sE[:, 0], 1000*sE[:, 1], label='EXUDYN', color='blue')
         plt.plot(tspan, 1000*sM, label='MATLAB', color='red')
         plt.xlim(0, tEnd)
-        plt.ylim(850, 1150)
+        plt.ylim(750, 1500)
         plt.grid(True)
         # Add a title and axis labels
         ax.set_xlabel('Time, s')
