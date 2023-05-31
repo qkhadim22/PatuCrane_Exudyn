@@ -14,7 +14,7 @@
 
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-FlexibleModel = False
+FlexibleModel = Falsegit 
 
 if FlexibleModel:
     from Models.FlexibleSystem import FFRFHydraulics
