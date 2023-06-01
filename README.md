@@ -21,7 +21,7 @@ Contact           : qasim.khadim@outlook.com,qkhadim22 (Github)
 
 ## Acknowledgements:
 
-The author would like to thanks Prof. Johannes Gerstmayr for hosting me at University of Innsbruck, Department of Mechatronics, Innsbruck, Austria. His supervision enabled me to understand and write this code in Exudyn environment. I would also like to thanks Prof. Aki Mikkola, Prof. Emil Kurvinen and Dr. Grzegorz Orzechowski. Special thanks to Prof. Emil Kurvinen for giving me this opportunity to work at University of Innsbruck.
+The author would like to thanks Prof. Johannes Gerstmayr for hosting me at University of Innsbruck, Department of Mechatronics, Innsbruck, Austria. His supervision enabled me to understand and write this code in Exudyn environment. Special thanks to Stefan Holzinger for helping me in ANSYS mesh export and modeling FFRF in exudyn.  I would also like to thanks Prof. Aki Mikkola, Prof. Emil Kurvinen and Dr. Grzegorz Orzechowski. Special thanks to Prof. Emil Kurvinen for giving me this opportunity to work at University of Innsbruck.
 
 ## Funding:
 SANTTU Project funded by Business Finland. 
