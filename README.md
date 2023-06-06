@@ -32,6 +32,4 @@ SANTTU Project funded by Business Finland.
 3. Q. Khadim et al., "State Estimation in a Hydraulically Actuated Log Crane Using Unscented Kalman Filter," in IEEE Access, vol. 10, pp. 62863-62878, 2022, doi: 10.1109/ACCESS.2022.3179591 (Hydraulics).
 <<<<<<< HEAD
 4. Q. Khadim et al., "Experimental Investigation into the State Estimation of a Forestry Crane Using the Unscented Kalman Filter and a Multiphysics Model," in Mechanism and Machine Theory, Accepted, 2023, doi: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4285871 (Hydraulics-Verification).
-=======
-4. Q. Khadim et al., "Experimental Investigation into the State Estimation of a Forestry Crane Using the Unscented Kalman Filter and a Multiphysics Model," in Mechanism and Machine Theory, Accepted, 2023, doi: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4285871 (Hydraulics-Verification).
->>>>>>> 83a720af2265b144acd8ad8e536c8b10c5ed6f27
+
