@@ -14,12 +14,12 @@
 
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-FlexibleModel = Falsegit 
+FlexibleModel = True
 
 if FlexibleModel:
     from Models.FlexibleSystem import FFRFHydraulics
-    FFRFHydraulics(FineMesh=False, nModes=4, loadFromSavedNPY=True, ComputeModes =False, FreeModes = False, HCB= False, ModeAnimation = False,
-               Hydraulics=True, useFriction=True, Visualization=True, Plotting=True) 
+    FFRFHydraulics(FineMesh=False, nModes=4, loadFromSavedNPY=True, ComputeModes =False, FreeModes = False, HCB= True, ModeAnimation = True,
+                   StaticCase= True, Hydraulics=False, useFriction=True, Visualization=True, Plotting=False) 
     
 else:
     from Models.RigidSystem import RigidMultibodyHydraulics

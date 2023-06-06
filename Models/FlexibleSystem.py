@@ -82,18 +82,18 @@ mbs.AddObject(GenericJoint(markerNumbers=[markerGround, Marker3],constrainedAxes
 visualization=VObjectJointGeneric(axesRadius=0.2*W1,axesLength=1.4*W1)))
 
 
-def FFRFHydraulics(FineMesh, nModes, loadFromSavedNPY, ComputeModes, FreeModes, HCB, ModeAnimation, Hydraulics,
+def FFRFHydraulics(FineMesh, nModes, loadFromSavedNPY, ComputeModes, FreeModes, HCB, ModeAnimation, StaticCase, Hydraulics,
                    useFriction, Visualization,Plotting):
     
     global Fc, Fs, sig2, vs, Av0, Av1
     
     if FineMesh:
         
-        fileNameL       = 'LiftBoom/ABAQUS/LiftBoom-freebody' #To load fine mesh data from Abaqus
+        fileNameL       = 'LiftBoom/ABAQUS/liftboom-free-050623' #To load fine mesh data from Abaqus
         
         if not loadFromSavedNPY: 
                 start_time                      = time.time()
-                nodes                           = feL.ImportFromAbaqusInputFile(fileNameL+'.inp', typeName='Part', name='P000524_A_1-Nostopuomi_v2')
+                nodes                           = feL.ImportFromAbaqusInputFile(fileNameL+'.inp', typeName='Part', name='P000524_A_1-Nostopuomi_v2_fem_st')
                 feL.ReadMassMatrixFromAbaqus(fileName=fileNameL + '_MASS2.mtx')             #Load mass matrix
                 feL.ReadStiffnessMatrixFromAbaqus(fileName=fileNameL + '_STIF2.mtx')        #Load stiffness matrix
                 feL.SaveToFile(fileNameL)
@@ -172,37 +172,65 @@ def FFRFHydraulics(FineMesh, nModes, loadFromSavedNPY, ComputeModes, FreeModes, 
     nodeListPist1Len    = len(nodeListPist1)
     noodeWeightsPist1   = [1/nodeListPist1Len]*nodeListPist1Len
     
-    # STEP 2: Craig-Bampton Modes
-    boundaryList        = [nodeListJoint1, nodeListPist1]
-    start_time          = time.time()
-    feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
+    if not Hydraulics:
+        # STEP 2: Craig-Bampton Modes
+        boundaryList    = [nodeListJoint1]
+        start_time      = time.time()
+        feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
                                                     useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
-    print("Hurty-Craig Bampton modes... ")
-    print("eigen freq.=", feL.GetEigenFrequenciesHz())
-    print("HCB modes needed %.3f seconds" % (time.time() - start_time))  
+        print("Hurty-Craig Bampton modes... ")
+        print("eigen freq.=", feL.GetEigenFrequenciesHz())
+        print("HCB modes needed %.3f seconds" % (time.time() - start_time))  
+    
+        colLift = color4blue
            
-    LiftBoom            = ObjectFFRFreducedOrderInterface(feL)
-    LiftBoomFFRF        = LiftBoom.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
+        LiftBoom            = ObjectFFRFreducedOrderInterface(feL)
+        
+        LiftBoomFFRF        = LiftBoom.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
+                                              initialVelocity=[0,0,0], 
+                                              initialAngularVelocity=[0,0,0],
+                                              rotationMatrixRef  = RotationMatrixZ(mt.radians(0)),
+                                              gravity=g,
+                                              color=colLift,)
+        
+        Marker7             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
+                                              meshNodeNumbers=np.array(nodeListJoint1), #these are the meshNodeNumbers
+                                              weightingFactors=noodeWeightsJoint1))
+        if StaticCase:
+            # Add Fixed Joint
+            mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1, 1, 1, 1, 1, 1],
+                           visualization=VObjectJointGeneric(axesRadius=0.18*0.263342,axesLength=1.1*0.263342)))
+        else:
+            # Add Revolute Joint
+            mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
+                         visualization=VObjectJointGeneric(axesRadius=0.18*0.263342,axesLength=1.1*0.263342)))         
+    else:
+        # STEP 2: Craig-Bampton Modes
+        boundaryList        = [nodeListJoint1, nodeListPist1]
+        start_time          = time.time()
+        feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
+                                                    useSparseSolver=True,computationMode = HCBstaticModeSelection.RBE2)
+        print("Hurty-Craig Bampton modes... ")
+        print("eigen freq.=", feL.GetEigenFrequenciesHz())
+        print("HCB modes needed %.3f seconds" % (time.time() - start_time))  
+    
+        colLift = color4blue
+           
+        LiftBoom            = ObjectFFRFreducedOrderInterface(feL)
+        
+        LiftBoomFFRF        = LiftBoom.AddObjectFFRFreducedOrder(mbs, positionRef=np.array([-0.09, 1.4261, 0]), 
                                               initialVelocity=[0,0,0], 
                                               initialAngularVelocity=[0,0,0],
                                               rotationMatrixRef  = RotationMatrixZ(mt.radians(-27.227343749651500)),
                                               gravity=g,
-                                              color=[0.1,0.9,0.1,1.],)
-    
-    Marker7             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
+                                             color=colLift,)
+        
+        Marker7             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
                                               meshNodeNumbers=np.array(nodeListJoint1), #these are the meshNodeNumbers
                                               weightingFactors=noodeWeightsJoint1))
-    
-    Marker8             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
+        Marker8             = mbs.AddMarker(MarkerSuperElementRigid(bodyNumber=LiftBoomFFRF['oFFRFreducedOrder'],
                                               meshNodeNumbers=np.array(nodeListPist1), #these are the meshNodeNumbers
                                               weightingFactors=noodeWeightsPist1))
-    
-    if not Hydraulics:
-        
-        #Revolute Joint
-        mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
-                           visualization=VObjectJointGeneric(axesRadius=0.18*0.263342,axesLength=1.1*0.263342)))
-    else:
         
         #Revolute Joint
         mbs.AddObject(GenericJoint(markerNumbers=[Marker4, Marker7],constrainedAxes=[1,1,1,1,1,0],
@@ -305,32 +333,51 @@ def FFRFHydraulics(FineMesh, nModes, loadFromSavedNPY, ComputeModes, FreeModes, 
         sPressures      = mbs.AddSensor(SensorNode(nodeNumber=nODE1, storeInternal=True, 
                                                    fileName='ExData/sPressures.txt',outputVariableType=exu.OutputVariableType.Coordinates))   
     
-        
     mbs.Assemble()
     simulationSettings = exu.SimulationSettings()
-    simulationSettings.timeIntegration.numberOfSteps            = nSteps
-    simulationSettings.timeIntegration.endTime                  = tEnd
-    simulationSettings.timeIntegration.verboseMode              = 1
-    #simulationSettings.timeIntegration.simulateInRealtime       = True
-    simulationSettings.solutionSettings.solutionWritePeriod     = h
-    simulationSettings.solutionSettings.sensorsWritePeriod      = h
-    simulationSettings.linearSolverType                         = exu.LinearSolverType.EigenSparse
-    simulationSettings.timeIntegration.newton.useModifiedNewton = True
-    simulationSettings.timeIntegration.stepInformation         += 8
-    #simulationSettings.displayComputationTime                   = True
-    simulationSettings.displayStatistics                        = True             
 
-    SC.visualizationSettings.window.renderWindowSize            = [1600, 1200]        
-    SC.visualizationSettings.openGL.multiSampling               = 4        
-    SC.visualizationSettings.openGL.lineWidth                   = 3  
-    SC.visualizationSettings.general.autoFitScene               = False      
-    SC.visualizationSettings.nodes.drawNodesAsPoint             = False        
-    SC.visualizationSettings.nodes.showBasis                    = True     
-
-    exu.SolveDynamic(mbs, simulationSettings=simulationSettings,
+    if not StaticCase:
+        simulationSettings.timeIntegration.numberOfSteps            = nSteps
+        simulationSettings.timeIntegration.endTime                  = tEnd
+        simulationSettings.timeIntegration.verboseMode              = 1
+        #simulationSettings.timeIntegration.simulateInRealtime       = True
+        simulationSettings.solutionSettings.solutionWritePeriod     = h
+        simulationSettings.solutionSettings.sensorsWritePeriod      = h
+        simulationSettings.linearSolverType                         = exu.LinearSolverType.EigenSparse
+        simulationSettings.timeIntegration.newton.useModifiedNewton = True
+        simulationSettings.timeIntegration.stepInformation         += 8
+        #simulationSettings.displayComputationTime                   = True
+        simulationSettings.displayStatistics                        = True             
+        exu.SolveDynamic(mbs, simulationSettings=simulationSettings,
                  solverType=exu.DynamicSolverType.TrapezoidalIndex2)
+       
+       # mbs.SolveDynamic(simulationSettings)  
+    else:
+        simulationSettings.solutionSettings.solutionWritePeriod = 2e-2  #output interval general
+        simulationSettings.solutionSettings.sensorsWritePeriod = 1e-1  #output interval of sensors
+        simulationSettings.timeIntegration.numberOfSteps = int(tEnd/h) #must be integer
+        simulationSettings.timeIntegration.endTime = tEnd
+        simulationSettings.solutionSettings.coordinatesSolutionFileName = "staticSolution.txt"
+        simulationSettings.solutionSettings.appendToFile = False
+        simulationSettings.staticSolver.newton.numericalDifferentiation.relativeEpsilon = 1e-4
+        simulationSettings.staticSolver.newton.relativeTolerance = 1e-6
+        simulationSettings.staticSolver.newton.absoluteTolerance = 1e-1
+        simulationSettings.staticSolver.verboseMode = 2
+        simulationSettings.timeIntegration.newton.useModifiedNewton = True
+        simulationSettings.linearSolverType = exu.LinearSolverType.EigenSparse
+        simulationSettings.staticSolver.numberOfLoadSteps = 5
+        
+        simulationSettings.staticSolver.adaptiveStep = True
+        
+        exu.SolveStatic(simulationSettings)
     
     if Visualization:
+        SC.visualizationSettings.window.renderWindowSize            = [1600, 1200]        
+        SC.visualizationSettings.openGL.multiSampling               = 4        
+        SC.visualizationSettings.openGL.lineWidth                   = 3  
+        SC.visualizationSettings.general.autoFitScene               = False      
+        SC.visualizationSettings.nodes.drawNodesAsPoint             = False        
+        SC.visualizationSettings.nodes.showBasis                    = True  
         
         from exudyn.interactive import SolutionViewer
         SolutionViewer(mbs) 

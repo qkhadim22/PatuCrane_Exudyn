@@ -71,7 +71,8 @@ def LiftBoomModes(feL, FineMesh , nModes, FreeModes, HCB, ModeAnimation):
            
            
            print("Compute Craig-Bampton modes... ")
-           boundaryList        = [nodeListJoint1, nodeListPist1, nodeListCyl2, nodeListJoint2, nodeListJoint3]
+           #boundaryList        = [nodeListJoint1, nodeListPist1, nodeListCyl2, nodeListJoint2, nodeListJoint3]
+           boundaryList         = [nodeListJoint1, nodeListPist1]
            
            start_time           = time.time()
            feL.ComputeHurtyCraigBamptonModes(boundaryNodesList=boundaryList, nEigenModes=nModes, 
