@@ -1,0 +1,14 @@
+#Exudyn nonlinear static solver static sensor output file
+#measure Marker number = 7
+#OutputVariableType = Displacement
+#simulation started = 2023-06-08,08:23:39
+#columns contain: time, comma separated sensor values (e.g, x,y,z position coordinates)
+#number of sensor values = 3
+#Exudyn version = 1.6.119.dev1; Python3.8.13; Linux FLOAT64
+#
+0,0,0,0
+0.2,-8.208694093e-07,-0.0001327902898,1.952450302e-07
+0.4,-1.64173882e-06,-0.0002655805795,3.904900604e-07
+0.6,-2.462608233e-06,-0.0003983708693,5.857350906e-07
+0.8,-3.283477646e-06,-0.0005311611591,7.809801208e-07
+1,-4.104347063e-06,-0.0006639514488,9.76225151e-07

@@ -14,12 +14,21 @@
 
 #%%++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 
-FlexibleModel = False
+Flexible        = True
+FlexiblePatu    = False
 
-if FlexibleModel:
-    from Models.FlexibleSystem import FFRFHydraulics
-    FFRFHydraulics(FineMesh=False, nModes=4, loadFromSavedNPY=True, ComputeModes =False, FreeModes = False, HCB= True, ModeAnimation = True,
+if Flexible:
+    if FlexiblePatu:
+        
+        from Models.FlexibleSystem import FlexiblePatuCrane
+        FlexiblePatuCrane(FineMesh=False, nModes=4, loadFromSavedNPY=True, ComputeModes =False, FreeModes = False, HCB= True, ModeAnimation = True,
                    StaticCase= False, Hydraulics=False, useFriction=True, Visualization=True, Plotting=False) 
+        
+    else:
+        
+        from Models.FlexibleSystem import FlexibleLiftBoom
+        FlexibleLiftBoom(FineMesh=False, nModes=4, loadFromSavedNPY=True, ComputeModes =False, FreeModes = True, HCB= True, ModeAnimation = True,
+                   StaticCase= False, Hydraulics=True, useFriction=True, Visualization=False, Plotting=True) 
     
 else:
     from Models.RigidSystem import RigidMultibodyHydraulics

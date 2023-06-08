@@ -215,13 +215,13 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
         
         # Add sensors
         Angle1          = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
-                                        fileName='ExData/LiftAngle1.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
+                                        fileName='ExData/PatuRigid/LiftAngle1.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
         Angle2          = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
-                                        fileName='ExData/TiltAngle2.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
+                                        fileName='ExData/PatuRigid/TiltAngle2.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
         Angle1_t        = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
-                                        fileName='ExData/LiftAngle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+                                        fileName='ExData/PatuRigid/LiftAngle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
         Angle2_t        = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
-                                        fileName='ExData/TiltAngle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+                                        fileName='ExData/PatuRigid/TiltAngle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
     
     else:
         
@@ -458,30 +458,30 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
         
         # Add sensors in the system
         sForce1         = mbs.AddSensor(SensorObject(objectNumber=oHA1, storeInternal=True, 
-                                                     fileName='ExData/sForce1.txt', outputVariableType=exu.OutputVariableType.Force))
+                                                     fileName='ExData/PatuRigid/sForce1.txt', outputVariableType=exu.OutputVariableType.Force))
         sForce2         = mbs.AddSensor(SensorObject(objectNumber=oHA2, storeInternal=True, 
-                                                     fileName='ExData/sForce2.txt', outputVariableType=exu.OutputVariableType.Force))
+                                                     fileName='ExData/PatuRigid/sForce2.txt', outputVariableType=exu.OutputVariableType.Force))
         sDistance1      = mbs.AddSensor(SensorObject(objectNumber=oHA1, storeInternal=True, 
-                                                     fileName='ExData/sDistance1.txt', outputVariableType=exu.OutputVariableType.Distance))
+                                                     fileName='ExData/PatuRigid/sDistance1.txt', outputVariableType=exu.OutputVariableType.Distance))
         sDistance2      = mbs.AddSensor(SensorObject(objectNumber=oHA2, storeInternal=True, 
-                                                     fileName='ExData/sDistance2.txt', outputVariableType=exu.OutputVariableType.Distance))
+                                                     fileName='ExData/PatuRigid/sDistance2.txt', outputVariableType=exu.OutputVariableType.Distance))
         sVelocity1      = mbs.AddSensor(SensorObject(objectNumber=oHA1, storeInternal=True,
-                                                     fileName='ExData/sVelocity1.txt', outputVariableType=exu.OutputVariableType.VelocityLocal))
+                                                     fileName='ExData/PatuRigid/sVelocity1.txt', outputVariableType=exu.OutputVariableType.VelocityLocal))
         sVelocity2      = mbs.AddSensor(SensorObject(objectNumber=oHA2, storeInternal=True,
-                                                     fileName='ExData/sVelocity2.txt', outputVariableType=exu.OutputVariableType.VelocityLocal))  
+                                                     fileName='ExData/PatuRigid/sVelocity2.txt', outputVariableType=exu.OutputVariableType.VelocityLocal))  
         sPressures1     = mbs.AddSensor(SensorNode(nodeNumber=nODE1, storeInternal=True, 
-                                                   fileName='ExData/sPressures1.txt',outputVariableType=exu.OutputVariableType.Coordinates))
+                                                   fileName='ExData/PatuRigid/sPressures1.txt',outputVariableType=exu.OutputVariableType.Coordinates))
         sPressures2     = mbs.AddSensor(SensorNode(nodeNumber=nODE2, storeInternal=True, 
-                                                   fileName='ExData/sPressures2.txt',outputVariableType=exu.OutputVariableType.Coordinates))
+                                                   fileName='ExData/PatuRigid/sPressures2.txt',outputVariableType=exu.OutputVariableType.Coordinates))
         if RedundantCoordinates:
             Angle1h         = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
-                                        fileName='ExData/Angle1.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
+                                        fileName='ExData/PatuRigid/Angle1.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
             Angle2h         = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
-                                        fileName='ExData/Angle2.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
+                                        fileName='ExData/PatuRigid/Angle2.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
             Angle1_th       = mbs.AddSensor(SensorBody(bodyNumber=b2, localPosition=[0,0,0.0],
-                                        fileName='ExData/Angle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+                                        fileName='ExData/PatuRigid/Angle1_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
             Angle2_th       = mbs.AddSensor(SensorBody(bodyNumber=b3, localPosition=[0,0,0.0],
-                                        fileName='ExData/Angle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
+                                        fileName='ExData/PatuRigid/Angle2_t.txt', storeInternal=True,outputVariableType = exu.OutputVariableType.AngularVelocityLocal))
         else:
             Angle1h         = mbs.AddSensor(SensorKinematicTree(objectNumber=oKT, linkNumber=0, localPosition=[0,0,0.0],
                                         storeInternal=True,outputVariableType = exu.OutputVariableType.Rotation))
@@ -543,7 +543,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-360, 360)
             #ax.set_ylabel('Angle ${\Theta}_{1_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/LiftTheta1.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/LiftTheta1.png', dpi=300)
             plt.show()
  
             # Angle of Tiltboom
@@ -555,7 +555,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-360, 360)
             #ax.set_ylabel('Angle ${\Theta}_{2_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/TiltTheta2.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/TiltTheta2.png', dpi=300)
             plt.show()       
 
             # Angular velocity of Liftboom
@@ -567,7 +567,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-360, 360)
             #ax.set_ylabel('Angle ${\Dot{\Theta}}_{1_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/LiftdTheta1.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/LiftdTheta1.png', dpi=300)
             plt.show()
  
             # Angular velocity of Tiltboom
@@ -579,7 +579,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-360, 360)
             #ax.set_ylabel('Angle ${\Dot{\Theta}}_{2_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/TiltdTheta2.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/TiltdTheta2.png', dpi=300)
             plt.show()  
         
         else:
@@ -603,7 +603,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-25, 25)
             #ax.set_ylabel('Angle ${\Theta}_{1_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/Theta1.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/Theta1.png', dpi=300)
             plt.show()
  
             # Angle of Tiltboom
@@ -616,7 +616,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-60, 30)
             #ax.set_ylabel('Angle ${\Theta}_{2_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/Theta2.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/Theta2.png', dpi=300)
             plt.show()       
 
             # Angular velocity of Liftboom
@@ -629,7 +629,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-12, 12)
             #ax.set_ylabel('Angle ${\Dot{\Theta}}_{1_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/dTheta1.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/dTheta1.png', dpi=300)
             plt.show()
  
             # Angular velocity of Tiltboom
@@ -642,7 +642,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             plt.ylim(-35, 35)
             #ax.set_ylabel('Angle ${\Dot{\Theta}}_{2_z}$, deg')
             plt.legend()
-            plt.savefig('ExData/dTheta2.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/dTheta2.png', dpi=300)
             
             fig, ax = plt.subplots()
             plt.plot(sDistance1[:, 0], 1000*sDistance1[:, 1], label='EXUDYN', color='blue')
@@ -654,7 +654,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             ax.set_xlabel('Time, s')
             ax.set_ylabel('Actuator 1, mm')
             plt.legend()
-            plt.savefig('ExData/ActuatorPosition1.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/ActuatorPosition1.png', dpi=300)
             plt.show() 
 
             fig, ax = plt.subplots()
@@ -667,7 +667,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             ax.set_xlabel('Time, s')
             ax.set_ylabel('Actuator 2, mm')
             plt.legend()
-            plt.savefig('ExData/ActuatorPosition2.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/ActuatorPosition2.png', dpi=300)
             plt.show()                  
    
 
@@ -681,7 +681,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             ax.set_xlabel('Time, s')
             ax.set_ylabel('Pressure $p_1$, Pa')
             plt.legend()
-            plt.savefig('ExData/Pressure1.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/Pressure1.png', dpi=300)
             plt.show()
 
             fig, ax = plt.subplots()
@@ -694,7 +694,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             ax.set_xlabel('Time, s')
             ax.set_ylabel('Pressure $p_2$, Pa')
             plt.legend()
-            plt.savefig('ExData/Pressure2.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/Pressure2.png', dpi=300)
             plt.show()
             
             fig, ax = plt.subplots()
@@ -707,7 +707,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             ax.set_xlabel('Time, s')
             ax.set_ylabel('Pressure $p_3$, Pa')
             plt.legend()
-            plt.savefig('ExData/Pressure3.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/Pressure3.png', dpi=300)
             plt.show()
             
             fig, ax = plt.subplots()
@@ -720,7 +720,7 @@ def RigidMultibodyHydraulics(RedundantCoordinates, Hydraulics, useFriction, Plot
             ax.set_xlabel('Time, s')
             ax.set_ylabel('Pressure $p_4$, Pa')
             plt.legend()
-            plt.savefig('ExData/Pressure4.png', dpi=300)
+            plt.savefig('ExData/PatuRigid/Pressure4.png', dpi=300)
             plt.show()
             
             
