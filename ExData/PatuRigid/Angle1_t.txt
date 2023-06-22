@@ -1,7 +1,7 @@
 #Exudyn implicit second order time integration sensor output file
 #measure Body number = 3
 #OutputVariableType = AngularVelocityLocal
-#simulation started = 2023-06-08,08:18:42
+#simulation started = 2023-06-13,07:56:01
 #columns contain: time, comma separated sensor values (e.g, x,y,z position coordinates)
 #number of sensor values = 3
 #Exudyn version = 1.6.119.dev1; Python3.8.13; Linux FLOAT64

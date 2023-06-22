@@ -9,8 +9,9 @@ sys.exudynFast = True
 import exudyn as exu
 import numpy as np
 import math as mt
+import matplotlib as plt
 import scipy.io
-import matplotlib.pyplot as plt
+
 
 from exudyn.utilities import * #includes graphics and rigid body utilities
 from math import sin, cos, sqrt, pi, tanh
@@ -29,12 +30,12 @@ ListBodies      = ['Pillar', 'LiftBoom', 'TiltBoom+ExtensionBoom',
                                             'Bracket 1', 'Bracket 2']  
 
 # Loading Graphics of bodies
-fileName1       = 'Graphics_Exudyn/Pillar.stl'
-fileName2       = 'Graphics_Exudyn/LiftBoom.stl'
-fileName3       = 'Graphics_Exudyn/TiltBoom+ExtensionBoom.stl'
-fileName4       = 'Graphics_Exudyn/Bracket1.stl'
-fileName5       = 'Graphics_Exudyn/Bracket2.stl'
-fileName6       = 'Graphics_Exudyn/TiltBoom+ExtensionBoom_MC.stl'
+fileName1       = 'Graphics_Exudyn/LowQualityPATU/Pillar.stl'
+fileName2       = 'Graphics_Exudyn/LowQualityPATU/LiftBoom.stl'
+fileName3       = 'Graphics_Exudyn/LowQualityPATU/TiltBoom+ExtensionBoom.stl'
+fileName4       = 'Graphics_Exudyn/LowQualityPATU/Bracket1.stl'
+fileName5       = 'Graphics_Exudyn/LowQualityPATU/Bracket2.stl'
+fileName6       = 'Graphics_Exudyn/LowQualityPATU/TiltBoom+ExtensionBoom_MC.stl'
 
 
 #Ground body
